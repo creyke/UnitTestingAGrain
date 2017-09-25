@@ -20,13 +20,12 @@ namespace UnitTestingAGrain.Tests.Grains
         [Fact]
         public async Task CanMockAnotherGrain()
         {
-            var anotherGrainGuid = Guid.Empty;
-
+            var guid = Guid.Empty;
             MockGrainFactory
-                .Setup(x => x.GetGrain<IMyGrain>(anotherGrainGuid, null))
+                .Setup(x => x.GetGrain<IMyGrain>(guid, null))
                 .Returns(new MyGrain(MockGrainIdentity.Object, MockGrainRuntime.Object));
 
-            Assert.True(await Subject.DoSomethingOnAnotherGrain(anotherGrainGuid));
+            Assert.True(await Subject.DoSomethingOnAnotherGrain(guid));
         }
     }
 }
