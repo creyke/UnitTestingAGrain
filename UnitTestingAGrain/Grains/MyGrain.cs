@@ -14,9 +14,19 @@ namespace UnitTestingAGrain.Grains
         {
         }
 
-        public Task<double> SquareRoot(double x)
+        public Task<bool> DoSomething()
         {
-            return Task.FromResult(Math.Sqrt(x));
+            return Task.FromResult(true);
+        }
+
+        public async Task<bool> DoSomethingOnAnotherGrain(Guid anotherGrainId)
+        {
+            return await GrainFactory.GetGrain<IMyGrain>(anotherGrainId).DoSomething();
+        }
+
+        public Task<Guid> GetPrimaryKey()
+        {
+            return Task.FromResult(GrainExtensions.GetPrimaryKey(this));
         }
     }
 }

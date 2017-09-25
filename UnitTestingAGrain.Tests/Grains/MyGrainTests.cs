@@ -1,7 +1,4 @@
-﻿using Moq;
-using Orleans.Core;
-using Orleans.Runtime;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using UnitTestingAGrain.Grains;
 using UnitTestingAGrain.Interfaces;
@@ -9,28 +6,27 @@ using Xunit;
 
 namespace UnitTestingAGrain.Tests.Grains
 {
-    public class MyGrainTests
+    public class MyGrainTests : GrainUnitTests<IMyGrain, MyGrain>
     {
-        private IMyGrain subject;
-
-        private Mock<IGrainIdentity> mockGrainIdentity;
-        private Mock<IGrainRuntime> mockGrainRuntime;
-
-        public MyGrainTests()
+        [Fact]
+        public async Task CanMockPrimaryKey()
         {
-            mockGrainIdentity = new Mock<IGrainIdentity>();
-            mockGrainRuntime = new Mock<IGrainRuntime>();
+            var guid = Guid.Parse("00000001-0001-0001-0001-000000000001");
+            MockGrainIdentity.Setup(x => x.PrimaryKey).Returns(guid);
 
-            subject = new MyGrain(
-                mockGrainIdentity.Object, mockGrainRuntime.Object);
+            Assert.Equal(guid, await Subject.GetPrimaryKey());
         }
 
         [Fact]
-        public async Task CanCalcSquareRoot()
+        public async Task CanMockAnotherGrain()
         {
-            double x = 25;
+            var anotherGrainGuid = Guid.Empty;
 
-            Assert.Equal(Math.Sqrt(x), await subject.SquareRoot(x));
+            MockGrainFactory
+                .Setup(x => x.GetGrain<IMyGrain>(anotherGrainGuid, null))
+                .Returns(new MyGrain(MockGrainIdentity.Object, MockGrainRuntime.Object));
+
+            Assert.True(await Subject.DoSomethingOnAnotherGrain(anotherGrainGuid));
         }
     }
 }
