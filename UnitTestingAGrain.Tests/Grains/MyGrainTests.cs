@@ -19,7 +19,7 @@ namespace UnitTestingAGrain.Tests.Grains
         }
 
         [Fact]
-        public async Task CanMockAnotherGrain()
+        public async Task CanMockADependentGrain()
         {
             var guid = Guid.Empty;
             var mockGrain = new Mock<IMyGrain>();
@@ -32,7 +32,7 @@ namespace UnitTestingAGrain.Tests.Grains
         }
 
         [Fact]
-        public async Task CanHandleMessagesFromStream()
+        public async Task CanManipulateState()
         {
             var count = 10;
             for (int i = 0; i < count; i++)
