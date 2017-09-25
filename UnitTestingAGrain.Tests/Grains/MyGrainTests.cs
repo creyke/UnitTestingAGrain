@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moq;
+using System;
 using System.Threading.Tasks;
 using UnitTestingAGrain.Grains;
 using UnitTestingAGrain.Interfaces;
@@ -6,7 +7,7 @@ using Xunit;
 
 namespace UnitTestingAGrain.Tests.Grains
 {
-    public class MyGrainTests : GrainUnitTests<IMyGrain, MyGrain>
+    public class MyGrainTests : GrainUnitTests<IMyGrain, MyGrain, int>
     {
         [Fact]
         public async Task CanMockPrimaryKey()
@@ -21,11 +22,25 @@ namespace UnitTestingAGrain.Tests.Grains
         public async Task CanMockAnotherGrain()
         {
             var guid = Guid.Empty;
+            var mockGrain = new Mock<IMyGrain>();
+            mockGrain.Setup(x => x.DoSomething()).ReturnsAsync(true);
             MockGrainFactory
                 .Setup(x => x.GetGrain<IMyGrain>(guid, null))
-                .Returns(new MyGrain(MockGrainIdentity.Object, MockGrainRuntime.Object));
+                .Returns(mockGrain.Object);
 
             Assert.True(await Subject.DoSomethingOnAnotherGrain(guid));
+        }
+
+        [Fact]
+        public async Task CanHandleMessagesFromStream()
+        {
+            var count = 10;
+            for (int i = 0; i < count; i++)
+            {
+                await Subject.OnNextAsync(i);
+            }
+
+            Assert.Equal(count, await Subject.GetMessagesReceived());
         }
     }
 }
